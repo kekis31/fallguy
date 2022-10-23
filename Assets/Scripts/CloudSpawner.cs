@@ -16,12 +16,18 @@ public class CloudSpawner : MonoBehaviour
     [SerializeField, Range(15, 100)]
     int maxDistance;
 
-    public int holeCount;
+    private int holeCount;
+    private float holeSize;
+    private float fakeHoleChance;
 
     List<Vector3> holes = new List<Vector3>();
     void Start()
     {
         centerPos = transform.position;
+
+        holeCount = 5;
+        holeSize = 6;
+        fakeHoleChance = 0.2f;
 
         GenerateCloud();
     }
@@ -55,8 +61,19 @@ public class CloudSpawner : MonoBehaviour
         }
 
         transform.position = centerPos;
-
+        
         StartCoroutine(CutHolesInCloud());
+
+        // Increase difficulty
+        if ((GameManager.instance.GetLevel() + 1) % 10 == 0)
+        {
+            holeCount--;
+        }
+
+        holeSize = Mathf.Clamp(holeSize - 0.075f, 2, 100);
+
+        fakeHoleChance += 0.02f;
+
     }
     IEnumerator CutHolesInCloud()
     {
@@ -64,7 +81,9 @@ public class CloudSpawner : MonoBehaviour
 
         holes.Clear();
 
-        for (int i = 0; i < holeCount; i++)
+        int hCount = Mathf.Clamp(Random.Range(holeCount - 1, holeCount + 1), 3, 100);
+
+        for (int i = 0; i < hCount; i++)
         {
             Vector3 randomPos = Vector3.zero;
             while (true)
@@ -82,7 +101,7 @@ public class CloudSpawner : MonoBehaviour
 
                 foreach (Vector3 h in holes)
                 {
-                    if (Vector3.Distance(h, randomPos) < 4)
+                    if (Vector3.Distance(h, randomPos) < 6.5f)
                     {
                         goodPos = false;
                     }
@@ -97,10 +116,10 @@ public class CloudSpawner : MonoBehaviour
 
             GameObject cutter = Instantiate(cloudCutPrefabs[Random.Range(0, cloudCutPrefabs.Length)], randomPos, Quaternion.identity);
             cutter.transform.Rotate(Vector3.up, Random.Range(0, 359));
-            cutter.transform.localScale = Vector3.one * 6;
+            cutter.transform.localScale = Vector3.one * Random.Range(holeSize / 1.25f, holeSize);
             
             // Decide type
-            if (GameManager.instance.GetLevel() >= 10 && i != 0 && Random.value < 0.33f)
+            if (GameManager.instance.GetLevel() >= 10 && i != 0 && Random.value < fakeHoleChance)
             {
                 cutter.GetComponent<Cutter>().type = Cutter.CutterType.Fake;
             }

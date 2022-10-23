@@ -8,18 +8,24 @@ public class PlayerControl : MonoBehaviour
     public float fallSpeed;
     public float maxVelocity;
     public float velocityLimit;
+
     [Tooltip("Movement")]
     public float moveSpeed;
     public float fallReset;
-    void Start()
-    {
-        
-    }
 
+    bool dead;
+    public bool dashing;
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.down * currentFallSpeed * Time.deltaTime);
+        if (dead)
+            return;
+
+        float fallMultiplier = 1;
+        if (dashing)
+            fallMultiplier = 1.33f;
+
+        transform.Translate(Vector3.down * currentFallSpeed * fallMultiplier * Time.deltaTime);
 
         IncreaseFallSpeed();
 
@@ -35,6 +41,13 @@ public class PlayerControl : MonoBehaviour
             maxVelocity = Mathf.Clamp(maxVelocity, 0, velocityLimit);
 
             GameManager.instance.AddLevel();
+        }
+
+        GameManager.instance.AddScore(currentFallSpeed * fallMultiplier * Time.deltaTime);
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            dashing = !dashing;
         }
     }
 
@@ -55,13 +68,14 @@ public class PlayerControl : MonoBehaviour
         transform.Translate(moveDir * moveSpeed * Time.deltaTime);
     }
 
-    private void OnCollisionStay(Collision collision)
+    private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Cloud"))
+        if (collision.gameObject.CompareTag("Cloud") && transform.position.y >= collision.transform.position.y)
         {
+            dead = true;
             GameManager.instance.GameOver();
         }
-        if (collision.gameObject.name == "Pipe")
+        if (collision.gameObject.CompareTag("Border"))
         {
             transform.position = new Vector3(0, transform.position.y, 0);
         }

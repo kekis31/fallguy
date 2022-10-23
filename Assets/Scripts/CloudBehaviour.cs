@@ -17,20 +17,15 @@ public class CloudBehaviour : MonoBehaviour
 
     }
 
-    public void HideCloud(float duration, bool infinite)
+    public void HideCloud(float duration)
     {
-        GetComponent<Collider>().enabled = false;
-        GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<MeshRenderer>().material = GameManager.instance.materials[1];
 
-        if (!infinite)
-        {
-            Invoke(nameof(ShowCloud), duration);
-        }
+        Invoke(nameof(ShowCloud), duration);
     }
 
     void ShowCloud()
     {
-        GetComponent<Collider>().enabled = true;
-        GetComponent<MeshRenderer>().enabled = true;
+        GetComponent<MeshRenderer>().material = GameManager.instance.materials[0];
     }
 }
