@@ -1,1 +1,5 @@
 Skybox texture - From my other project
+Font - https://www.fontspace.com/a-astro-space-font-f46028
+Character - https://www.cgtrader.com/free-3d-models/character/other/low-poly-character-rigged-1bad010a-65f9-48ff-841b-c3051f1801a9
+Cloud - https://www.cgtrader.com/free-3d-models/exterior/landscape/low-poly-clouds-pack-1
+Cel Shader - https://assetstore.unity.com/packages/vfx/shaders/flexible-cel-shader-built-in-pipeline-112979

@@ -28,12 +28,14 @@ public class CloudSpawner : MonoBehaviour
         holeCount = 5;
         holeSize = 6;
         fakeHoleChance = 0.2f;
-
-        GenerateCloud();
     }
 
     public void GenerateCloud()
     {
+        GameManager.instance.clouds.Clear();
+        GameManager.instance.playerPassed = false;
+        GameManager.instance.playerScored = false;
+
         GameObject[] clouds = GameObject.FindGameObjectsWithTag("Cloud");
         if (clouds.Length > 0)
         {
@@ -57,6 +59,8 @@ public class CloudSpawner : MonoBehaviour
                 spawnedCloud.transform.localScale = Vector3.one * Mathf.Clamp(((float)d / distance), 0.33f, 1) * 3 * Random.Range(1, 1.25f);
                 spawnedCloud.transform.parent = GameObject.Find("Clouds").transform;
                 transform.Translate(transform.forward);
+
+                GameManager.instance.clouds.Add(spawnedCloud);
             }
         }
 
@@ -73,7 +77,6 @@ public class CloudSpawner : MonoBehaviour
         holeSize = Mathf.Clamp(holeSize - 0.075f, 2, 100);
 
         fakeHoleChance += 0.02f;
-
     }
     IEnumerator CutHolesInCloud()
     {

@@ -17,7 +17,7 @@ public class Cutter : MonoBehaviour
             }
             else if (type == CutterType.Fake)
             {
-                collision.gameObject.GetComponent<CloudBehaviour>().HideCloud(Random.Range(2, 2.5f));
+                collision.gameObject.GetComponent<CloudBehaviour>().HideCloud();
             }
         }
     }

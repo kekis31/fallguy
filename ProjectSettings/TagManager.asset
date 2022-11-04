@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Cloud
   - Border
+  - Trail
   layers:
   - Default
   - TransparentFX

@@ -5,11 +5,11 @@ using UnityEngine;
 public class Pipe : MonoBehaviour
 {
     Transform player;
-    MeshRenderer mr;
+    Animator anim;
     void Start()
     {
         player = GameObject.Find("Player").transform;
-        mr = GetComponent<MeshRenderer>();
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -17,13 +17,6 @@ public class Pipe : MonoBehaviour
     {
         bool nearPlayer = Physics.CheckSphere(player.position, 6.5f, LayerMask.GetMask("Pipe"));
 
-        if (nearPlayer)
-        {
-            mr.enabled = true;
-        }
-        else
-        {
-            mr.enabled = false;
-        }
+        anim.SetBool("Active", nearPlayer);
     }
 }
