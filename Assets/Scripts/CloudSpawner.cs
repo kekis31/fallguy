@@ -20,6 +20,10 @@ public class CloudSpawner : MonoBehaviour
     private float holeSize;
     private float fakeHoleChance;
 
+    private int minHoleCount;
+    private float minHoleSize;
+    private float maxFakeHoleChance;
+
     List<Vector3> holes = new List<Vector3>();
     void Start()
     {
@@ -28,9 +32,13 @@ public class CloudSpawner : MonoBehaviour
         holeCount = 5;
         holeSize = 6;
         fakeHoleChance = 0.2f;
+
+        minHoleCount = 3;
+        minHoleSize = 3;
+        maxFakeHoleChance = 0.5f;
     }
 
-    public void GenerateCloud()
+    public IEnumerator GenerateCloud()
     {
         GameManager.instance.clouds.Clear();
         GameManager.instance.playerPassed = false;
@@ -74,9 +82,11 @@ public class CloudSpawner : MonoBehaviour
             holeCount--;
         }
 
-        holeSize = Mathf.Clamp(holeSize - 0.075f, 2, 100);
+        holeSize = Mathf.Clamp(holeSize - 0.075f, minHoleSize, 100);
 
-        fakeHoleChance += 0.02f;
+        fakeHoleChance = Mathf.Clamp(fakeHoleChance += 0.02f, 0, maxFakeHoleChance);
+
+        yield return new WaitForEndOfFrame();
     }
     IEnumerator CutHolesInCloud()
     {
@@ -84,7 +94,7 @@ public class CloudSpawner : MonoBehaviour
 
         holes.Clear();
 
-        int hCount = Mathf.Clamp(Random.Range(holeCount - 1, holeCount + 1), 3, 100);
+        int hCount = Mathf.Clamp(Random.Range(holeCount - 1, holeCount + 1), minHoleCount, 100);
 
         for (int i = 0; i < hCount; i++)
         {

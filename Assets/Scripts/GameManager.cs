@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
 
         // Score text
         scoreText.text = ((int)score).ToString();
-        scoreText.fontSize = (score / 100000 * 30) + 30;
+        scoreText.fontSize = (score / 100000 * 30) + 60;
 
         if (clouds.Count != 0)
         {

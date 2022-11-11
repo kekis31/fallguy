@@ -12,6 +12,9 @@ public class StartManager : MonoBehaviour
 
     public Material[] playerSkins;
     int skin;
+
+    bool leaderboardOpen;
+    int ranksPerPage = 20;
     private void Start()
     {
         if (PlayerPrefs.HasKey("Name"))
@@ -22,7 +25,13 @@ public class StartManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Return))
+        float touchY = 0.5f;
+        if (Input.touchCount > 0 && !leaderboardOpen)
+        {
+            touchY = Input.GetTouch(0).position.y / Screen.height;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Return) || touchY < 0.25f)
         {
             StartGame();
 
@@ -37,25 +46,30 @@ public class StartManager : MonoBehaviour
         GameObject.Find("StartCloud").transform.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
         GameObject.Find("StartCloud").GetComponent<ParticleSystem>().Play();
 
-        GameObject.Find("Start").SetActive(false);
+        GameObject.Find("Start").GetComponent<Animator>().SetTrigger("Start");
         GameObject.Find("Title").SetActive(false);
-        GameObject.Find("Leaderboard").SetActive(false);
-        GameObject.Find("LBoard").SetActive(false);
-        GameObject.Find("Name").SetActive(false);
-        GameObject.Find("Load").SetActive(false);
+        GameObject.Find("Leaderboard Button").SetActive(false);
         GameObject.Find("StartCamera").SetActive(false);
         GameObject.Find("Skin").SetActive(false);
 
         GameObject.Find("LowPolyCharacter1").GetComponent<Animator>().SetTrigger("Fall");
-        GameObject.Find("CloudSpawner").GetComponent<CloudSpawner>().GenerateCloud();
+
+        StartCoroutine(GameObject.Find("CloudSpawner").GetComponent<CloudSpawner>().GenerateCloud());
+
+        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerControl>().Dive();
 
         SoundManager.instance.PlaySound("ost", 0.3f, 1, true, true);
+    }
+
+    public void OpenMobileKeyboard()
+    {
+        TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default, false, false, false, false, "", 10);
     }
 
     public IEnumerator GetLeaderBoard()
     {
         int leaderboardID = 8155;
-        int count = 100;
+        int count = 1000;
         int after = 0;
 
         scores = null;
@@ -86,12 +100,13 @@ public class StartManager : MonoBehaviour
 
         string leaderboardText = string.Empty;
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < ranksPerPage; i++)
         {
             leaderboardText += (i + 1) + ": " + scores[i].metadata + " (" + scores[i].score + ")\n";
         }
 
-        GameObject.Find("LBoard").GetComponent<TextMeshProUGUI>().text = leaderboardText;
+        if (GameObject.Find("LBoard") != null)
+            GameObject.Find("LBoard").GetComponent<TextMeshProUGUI>().text = leaderboardText;
 
         if (GameManager.instance.memberID == scores[0].member_id)
         {
@@ -104,7 +119,7 @@ public class StartManager : MonoBehaviour
     {
         page++;
 
-        if (page > scores.Length / 10)
+        if (page > scores.Length / ranksPerPage)
         {
             page = 0;
         }
@@ -113,7 +128,7 @@ public class StartManager : MonoBehaviour
 
         string leaderboardText = string.Empty;
 
-        for (int i = page * 10; i < Mathf.Clamp((page + 1) * 10, 0, scores.Length); i++)
+        for (int i = page * ranksPerPage; i < Mathf.Clamp((page + 1) * ranksPerPage, 0, scores.Length); i++)
         {
             leaderboardText += (i + 1) + ": " + scores[i].metadata + " (" + scores[i].score + ")\n";
         }
@@ -131,5 +146,22 @@ public class StartManager : MonoBehaviour
         }
 
         GameObject.Find("Player").transform.Find("LowPolyCharacter1/Player").GetComponent<SkinnedMeshRenderer>().material = playerSkins[skin];
+    }
+
+    public void OpenLeaderboard()
+    {
+        leaderboardOpen = true;
+        GameObject.Find("LeaderboardPanel").GetComponent<Animator>().SetBool("Open", true);
+    }
+
+    public void CloseLeaderboard()
+    {
+        Invoke(nameof(SetLeaderboardFalse), 0.5f);
+        GameObject.Find("LeaderboardPanel").GetComponent<Animator>().SetBool("Open", false);
+    }
+
+    void SetLeaderboardFalse()
+    {
+        leaderboardOpen = false;
     }
 }
