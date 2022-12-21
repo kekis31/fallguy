@@ -25,6 +25,7 @@ public class PlayerControl : MonoBehaviour
     bool touchHoldingScreen;
     Vector2 touchPosition;
     RopeBehaviour virtualJoystick;
+    float touchTime;
 
     private void Start()
     {
@@ -113,17 +114,38 @@ public class PlayerControl : MonoBehaviour
             Vector2 touchPos = Input.GetTouch(0).position;
             virtualJoystick.target1 = touchPos;
             virtualJoystick.target2 = touchPosition;
+
+            touchTime += Time.deltaTime;
         }
         else
         {
-            touchHoldingScreen = false;
-            virtualJoystick.target1 = Vector2.zero;
-            virtualJoystick.target2 = Vector2.zero;
+            if (touchHoldingScreen)
+            {
+                touchHoldingScreen = false;
+
+                if (touchTime < 0.33f)
+                {
+                    Vector2 touchAxis = virtualJoystick.target1 - touchPosition;
+
+                    float touchDistance = Vector2.Distance(virtualJoystick.target1, touchPosition);
+
+                    Roll(touchAxis, touchDistance / 10);
+                }
+
+                virtualJoystick.target1 = Vector2.zero;
+                virtualJoystick.target2 = Vector2.zero;
+
+                touchTime = 0;
+            }
         }
 
         hori = Mathf.Clamp(hori, -1, 1);
         vert = Mathf.Clamp(vert, -1, 1);
 
+        if (Input.GetButtonDown("Jump"))
+        {
+            Roll(new Vector2(hori, vert), 30);
+        }
 
         Vector3 moveDir = new Vector3(vert, 0, -hori);
 
@@ -151,6 +173,15 @@ public class PlayerControl : MonoBehaviour
         touchAxis.y = Mathf.Clamp(touchAxis.y, -1, 1);
 
         return touchAxis;
+    }
+
+    void Roll(Vector2 direction, float force)
+    {
+        direction = direction.normalized;
+
+        GetComponent<Rigidbody>().AddForce(new Vector3(direction.y, 0, -direction.x) * force, ForceMode.Impulse);
+
+        GetComponent<Animator>().SetTrigger("Roll");
     }
 
     private void OnCollisionEnter(Collision collision)

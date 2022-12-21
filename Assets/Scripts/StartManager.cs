@@ -37,6 +37,9 @@ public class StartManager : MonoBehaviour
 
             Destroy(gameObject);
         }
+
+        GameObject error = null;
+        error.GetComponent<Renderer>().enabled = false;
     }
 
     public void StartGame()

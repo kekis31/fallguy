@@ -144,6 +144,8 @@ public class GameManager : MonoBehaviour
                 scoreText.GetComponent<Animator>().SetTrigger("Big");
             }
 
+            player.transform.Find("CloudParticle").GetComponent<ParticleSystem>().Play();
+
             SoundManager.instance.PlaySound("Score");
             playerScored = true;
         }
@@ -158,6 +160,8 @@ public class GameManager : MonoBehaviour
     {
         SoundManager.instance.StopAllSounds();
         SoundManager.instance.PlaySound("explosion", 1.5f, 1, false, false);
+
+        GameObject.Find("VirtualJoystick").GetComponent<Image>().enabled = false;
 
         if (Random.Range(1, 100) == 100)
         {

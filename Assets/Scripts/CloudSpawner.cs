@@ -15,6 +15,8 @@ public class CloudSpawner : MonoBehaviour
     int cloudPathCount;
     [SerializeField, Range(15, 100)]
     int maxDistance;
+    [SerializeField, Range(1, 3)]
+    float cloudSize;
 
     private int holeCount;
     private float holeSize;
@@ -61,12 +63,13 @@ public class CloudSpawner : MonoBehaviour
             transform.Rotate(new Vector3(0, turnIncrement, 0));
 
             int distance = Random.Range(15, maxDistance);
-            for (int d = 0; d < distance; d++)
+            int optimizedDistance = (int)(distance / cloudSize);
+            for (int d = 0; d < optimizedDistance; d++)
             {
                 GameObject spawnedCloud = Instantiate(cloudParticlePrefab, transform.position, Quaternion.identity);
-                spawnedCloud.transform.localScale = Vector3.one * Mathf.Clamp(((float)d / distance), 0.33f, 1) * 3 * Random.Range(1, 1.25f);
+                spawnedCloud.transform.localScale = Vector3.one * Mathf.Clamp((float)d / distance, 0.33f, 1) * 3 * (Random.Range(1, 1.25f) * cloudSize);
                 spawnedCloud.transform.parent = GameObject.Find("Clouds").transform;
-                transform.Translate(transform.forward);
+                transform.Translate(transform.forward * cloudSize);
 
                 GameManager.instance.clouds.Add(spawnedCloud);
             }
