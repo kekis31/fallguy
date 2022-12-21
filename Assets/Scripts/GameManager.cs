@@ -171,7 +171,7 @@ public class GameManager : MonoBehaviour
         GameObject.Find("GameOver").GetComponent<Animator>().SetTrigger("Fade");
         GameObject.Find("ScoreText").GetComponent<TextMeshProUGUI>().text = "Score: " + (int)score;
 
-        int leaderboardID = 8155;
+        int leaderboardID = 9925;
 
         LootLockerSDKManager.SubmitScore(memberID, (int)score, leaderboardID, playerName, (response) =>
         {

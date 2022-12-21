@@ -15,11 +15,25 @@ public class StartManager : MonoBehaviour
 
     bool leaderboardOpen;
     int ranksPerPage = 20;
+
+    [HideInInspector]
+    public bool christmasMode = false;
     private void Start()
     {
         if (PlayerPrefs.HasKey("Name"))
         {
             GameObject.Find("Name").GetComponent<TMP_InputField>().text = PlayerPrefs.GetString("Name");
+        }
+
+        System.DateTime currentTime = System.DateTime.Now;
+        if (currentTime.Month == 12)
+        {
+            christmasMode = true;
+        }
+        else
+        {
+            GameObject.Find("christmas_hat").SetActive(false);
+            GameObject.Find("SnowParticle").SetActive(false);
         }
     }
 
@@ -37,9 +51,6 @@ public class StartManager : MonoBehaviour
 
             Destroy(gameObject);
         }
-
-        GameObject error = null;
-        error.GetComponent<Renderer>().enabled = false;
     }
 
     public void StartGame()
@@ -71,25 +82,13 @@ public class StartManager : MonoBehaviour
 
     public IEnumerator GetLeaderBoard()
     {
-        int leaderboardID = 8155;
+        int leaderboardID = 9925;
         int count = 1000;
         int after = 0;
 
         scores = null;
 
-        LootLockerSDKManager.GetScoreList(leaderboardID, count, after, (response) =>
-        {
-            if (response.statusCode == 200)
-            {
-                scores = response.items;
 
-                Debug.Log("Successful");
-            }
-            else
-            {
-                Debug.Log("failed: " + response.Error);
-            }
-        });
 
         while (true)
         {
@@ -98,12 +97,32 @@ public class StartManager : MonoBehaviour
                 break;
             }
 
+            LootLockerSDKManager.GetScoreList(leaderboardID, count, after, (response) =>
+            {
+                if (response.statusCode == 200)
+                {
+                    scores = response.items;
+
+                    Debug.Log("Successful");
+                }
+                else
+                {
+                    Debug.Log("failed: " + response.Error);
+                }
+            });
+
             yield return new WaitForSeconds(0.1f);
         }
 
         string leaderboardText = string.Empty;
 
-        for (int i = 0; i < ranksPerPage; i++)
+        if (scores.Length == 0)
+        {
+            GameObject.Find("LBoard").GetComponent<TextMeshProUGUI>().text = "Empty";
+            yield break;
+        }
+
+        for (int i = 0; i < Mathf.Min(ranksPerPage, scores.Length); i++)
         {
             leaderboardText += (i + 1) + ": " + scores[i].metadata + " (" + scores[i].score + ")\n";
         }
